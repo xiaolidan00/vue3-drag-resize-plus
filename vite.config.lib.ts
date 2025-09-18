@@ -16,14 +16,14 @@ export default defineConfig({
     })
   ],
   build: {
-    minify: true,
+    minify: 'terser',
     outDir: 'build',
     lib: {
       entry: 'src/components/index.ts',
 
       name: 'Vue3DragResizePlus',
       formats: ['es', 'umd'],
-      fileName: (format) => `index.${format === 'umd' ? 'umd.' : ''}js`
+      fileName: (format) => `index.${format === 'umd' ? 'umd.' : 'es'}js`
     },
     sourcemap: true,
     rollupOptions: {

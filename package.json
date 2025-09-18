@@ -1,0 +1,51 @@
+{
+  "name": "vue3-drag-resize-plus",
+  "packageManager": "pnpm@10.12.4",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "build/index.umd.js",
+  "module": "build/index.js",
+  "types": "build/index.d.ts",
+  "author": "xiaolidan00",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js",
+      "require": "./build/index.umd.js"
+    },
+    "./*": "./build/*"
+  },
+  "keywords": [
+    "vue",
+    "drag",
+    "resize",
+    "vite",
+    "typescript",
+    "pnpm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiaolidan00/vue3-drag-resize-plus.git"
+  },
+  "homepage": "https://github.com/xiaolidan00/vue3-drag-resize-plus",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "pack": "vue-tsc -b && vite build --config vite.config.lib.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/tsconfig": "^0.8.1",
+    "sass": "^1.92.1",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.5",
+    "vite-plugin-dts": "^4.5.4",
+    "vue-tsc": "^3.0.7"
+  },
+  "dependencies": {
+    "vue": "^3.5.21"
+  }
+}

@@ -9,7 +9,12 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src')
     }
   },
-  plugins: [vue(), dts()],
+  plugins: [
+    vue(),
+    dts({
+      tsconfigPath: './tsconfig.type.json'
+    })
+  ],
   build: {
     minify: true,
     outDir: 'build',

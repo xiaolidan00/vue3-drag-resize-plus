@@ -1,4 +1,4 @@
-import type {CardConfig, CardRect, GuideLineType} from './type';
+import type {CardConfig, CardRect, GuideLineType} from './index';
 
 function getXDistance(props: CardRect, rect: CardRect): {s: number[]; n: number[]; minn: number; mins: number} {
   const a: number[] = [rect.left, rect.left + rect.width, rect.left + rect.width * 0.5];

@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
   import {computed, onBeforeUnmount, reactive, ref, watch} from 'vue';
-  import {type DragResizePlusProps, type CardRect, type GuideLineType} from './type';
+  import type {DragResizePlusProps, CardRect, GuideLineType} from './index';
   import {useGuideLine} from './useGuideLine';
   const cardRef = ref<HTMLDivElement>();
   const props = withDefaults(defineProps<DragResizePlusProps>(), {

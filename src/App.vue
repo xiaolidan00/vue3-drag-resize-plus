@@ -43,15 +43,31 @@
     <div class="demo-container" :style="{
         transform: `scale(${state.scale})`
     }">
-        <DragResizePlus :key="item.id" :id="item.id"  
-         :is-active="state.activeId === item.id"
-            :unscale="unscale" :parent-width="state.screenWidth" :parent-height="state.screenHeight"
-            v-for="item in state.elmts" :elmts="state.elmts" v-model:rect="item.rect" :isEdit="state.isEdit"
-            :isNear="state.isNear" :nearStep="state.nearStep" :isGuideLine="state.isGuideLine"
-            :guideDistance=state.guideDistance @dragStart="onAction" @dragMove="onAction" @dragEnd="onAction"
-            @resizeStart="onAction" @resizeMove="onAction" @resizeEnd="onAction" @click="onClick(item.id)"
-            :points="state.points">{{ item.title }}
-        </DragResizePlus>
+       <DragResizePlus
+  :key="item.id"
+  :id="item.id"
+  :is-active="state.activeId === item.id"
+  :unscale="unscale"
+  :parent-width="state.screenWidth"
+  :parent-height="state.screenHeight"
+  v-for="item in state.elmts"
+  :elmts="state.elmts"
+  v-model:rect="item.rect"
+  :isEdit="state.isEdit"
+  :isNear="state.isNear"
+  :nearStep="state.nearStep"
+  :isGuideLine="state.isGuideLine"
+  :guideDistance="state.guideDistance"
+  @dragStart="onAction"
+  @dragMove="onAction"
+  @dragEnd="onAction"
+  @resizeStart="onAction"
+  @resizeMove="onAction"
+  @resizeEnd="onAction"
+  @click="onClick(item.id)"
+  :points="state.points"
+  >{{ item.title }}
+</DragResizePlus>
     </div>
 </template>
 
@@ -96,7 +112,8 @@ const state = reactive({
     }
 });
 const unscale = computed(() => 1 / state.scale)
-const onAction = () => {
+const onAction = (op:any) => {
+console.log('🚀 ~ App.vue ~ onAction ~ op:', op)
 
 }
 const onClick = (id: string | number) => {

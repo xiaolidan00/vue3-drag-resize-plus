@@ -100,50 +100,34 @@ const onClick = (id: string | number) => {
 
 ## attributes
 
+| 属性名         | 说明                                       | 类型              |
+| -------------- | ------------------------------------------ | ----------------- |
+| id             | 【必填】 ID                                | `string` `number` |
+| rect           | 【必填】 大小和位置                        | `CardRect`        |
+| isEdit         | 是否可编辑 (可选中和可激活) 默认 true      | `boolean`         |
+| isActive       | 边框高亮+操作点 =>拖拽和调整大小 默认 true | `boolean`         |
+| isSelect       | 是否选中 边框高亮 默认 true                | `boolean`         |
+| isDrag         | 是否可拖拽移动 默认 true                   | `boolean`         |
+| isResize       | 是否可调整大小 默认 true                   | `boolean`         |
+| activeClazz    | 激活 class 默认 active                     | `string`          |
+| dragClazz      | 拖动 class 默认 dragging                   | `string`          |
+| isGuideLine    | 是否显示距离提示线 默认 true               | `boolean`         |
+| guideDistance  | 距离提示大小 默认 50                       | `number`          |
+| parentWidth    | 父级容器宽度 开启距离提示时必填            | `number`          |
+| parentHeight   | 父级容器高度 开启距离提示时必填            | `number`          |
+| elmts          | 所有需要对比距离的组件 开启距离提示时必填  | `CardConfig`      |
+| guideLineColor | 距离提示线颜色 默认 red                    | `string`          |
+| guideTextColor | 距离提示文本颜色 默认 white                | `string`          |
+| guideBgColor   | 距离提示文本背景颜色 默认#FF6347           | `string`          |
+| isNear         | 是否可磁吸 前提是开启距离提示 默认 true    | `boolean`         |
+| nearStep       | 磁吸距离 默认 5                            | `number`          |
+| unscale        | 反缩放大小 1/scale 默认 1                  | `number`          |
+| points         | 操作点是否显示 默认全 true                 | 请看下面          |
+
+操作点配置
+
 ```ts
-export type DragResizePlusProps = {
-  /**ID */
-  id: string | number;
-  /**是否可编辑 (可选中和可激活) 默认true*/
-  isEdit?: boolean;
-  /**是否激活 边框高亮+操作点 =>拖拽和调整大小 默认true */
-  isActive?: boolean;
-  /**是否选中 边框高亮 默认true*/
-  isSelect?: boolean;
-  /**是否可拖拽移动 默认true*/
-  isDrag?: boolean;
-  /**是否可调整大小 默认true*/
-  isResize?: boolean;
-  /**激活class 默认active*/
-  activeClazz?: string;
-  /**拖动class 默认dragging*/
-  dragClazz?: string;
-  /**大小和位置*/
-  rect: CardRect;
-  /**是否显示距离提示线 默认true*/
-  isGuideLine?: boolean;
-  /**距离提示大小 默认50*/
-  guideDistance?: number;
-  /**是否可磁吸 默认true*/
-  isNear?: boolean;
-  /**磁吸距离 默认5*/
-  nearStep?: number;
-  /**父级容器宽度*/
-  parentWidth?: number;
-  /**父级容器高度*/
-  parentHeight?: number;
-  /**所有需要对比距离的组件*/
-  elmts: CardConfig[];
-  /**反缩放大小 1/scale 默认1*/
-  unscale?: number;
-  /**距离提示线颜色 默认red*/
-  guideLineColor?: string;
-  /**距离提示文本颜色 默认white*/
-  guideTextColor?: string;
-  /**距离提示文本背景颜色 默认#FF6347*/
-  guideBgColor?: string;
-  /**操作点是否显示 默认全true**/
-  points?: {
+{
     'left-top': boolean;
     'center-top': boolean;
     'right-top': boolean;
@@ -152,8 +136,7 @@ export type DragResizePlusProps = {
     'left-bottom': boolean;
     'center-bottom': boolean;
     'right-bottom': boolean;
-  };
-};
+  }
 ```
 
 大小和位置
@@ -178,7 +161,7 @@ export type CardConfig = {
 
 ## events
 
-拖拽和移动抛出的事件
+拖拽和移动抛出的事件类型
 
 ```ts
 export type DragResizePlusEvent = {
@@ -190,29 +173,15 @@ export type DragResizePlusEvent = {
 };
 ```
 
-抛出事件
-
-```ts
-{
-    /**同步更新大小和位置 */
-    'update:rect': [rect: CardRect];
-    /**调整大小开始 */
-    resizeStart: [op: DragResizePlusEvent];
-    /**调整大小进行中 */
-    resizeMove: [op: DragResizePlusEvent];
-    /**调整大小结束 */
-    resizeEnd: [op: DragResizePlusEvent];
-    /**拖拽移动开始 */
-    dragStart: [op: DragResizePlusEvent];
-    /**拖拽移动进行中 */
-    dragMove: [op: DragResizePlusEvent];
-    /**拖拽移动结束 */
-    dragEnd: [op: DragResizePlusEvent];
-    /**点击 */
-    click: [ev: MouseEvent];
-    /**双击 */
-    dblclick: [ev: MouseEvent];
-    /**右击 */
-    contextmenu: [ev: MouseEvent];
-  }
-```
+| 事件名        | 说明               | 类型                    |
+| ------------- | ------------------ | ----------------------- |
+| 'update:rect' | 同步更新大小和位置 | rect: CardRect          |
+| resizeStart   | 调整大小开始       | op: DragResizePlusEvent |
+| resizeMove    | 调整大小进行中     | op: DragResizePlusEvent |
+| resizeEnd     | 调整大小结束       | op: DragResizePlusEvent |
+| dragStart     | 拖拽移动开始       | op: DragResizePlusEvent |
+| dragMove      | 拖拽移动进行中     | op: DragResizePlusEvent |
+| dragEnd       | 拖拽移动结束       | op: DragResizePlusEvent |
+| click         | 点击               | ev: MouseEvent          |
+| dblclick      | 双击               | ev: MouseEvent          |
+| contextmenu   | 右击               | ev: MouseEvent          |

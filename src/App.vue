@@ -73,7 +73,7 @@
 
 <script setup lang="ts">
 import { computed, reactive } from "vue";
-import { DragResizePlus } from "vue3-drag-resize-plus";
+import { DragResizePlus ,type DragResizePlusEvent } from "vue3-drag-resize-plus";
 import 'vue3-drag-resize-plus/index.css'
 const mockList: any[] = [];
 
@@ -112,9 +112,8 @@ const state = reactive({
     }
 });
 const unscale = computed(() => 1 / state.scale)
-const onAction = (op:any) => {
-// console.log('🚀 ~ App.vue ~ onAction ~ op:', op)
-
+const onAction = (op:DragResizePlusEvent) => {
+console.log('🚀 ~ App.vue ~ onAction ~ op:', op)
 }
 const onClick = (id: string | number) => {
     state.activeId = id

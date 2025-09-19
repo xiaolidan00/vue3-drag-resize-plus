@@ -1,7 +1,7 @@
 {
   "name": "vue3-drag-resize-plus",
   "packageManager": "pnpm@10.12.4",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "main": "build/index.umd.js",
   "module": "build/index.js",

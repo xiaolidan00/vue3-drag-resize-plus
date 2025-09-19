@@ -5,12 +5,12 @@
       'drp-drag-card',
       isEdit ? 'is-edit' : '',
       isEdit && (isSelect || isActive) ? activeClazz : '',
-      isAction && state.isDrag ? 'dragging' : ''
+      isAction && isDrag && state.dragging ? 'dragging' : ''
     ]"
     @mousedown.self="onMouseDown('drag', $event)"
-    @click.self="onAction('click', $event)"
-    @dblclick.self="onAction('dblclick', $event)"
-    @contextmenu.self="onAction('contextmenu', $event)"
+    @click="emit('click', $event)"
+    @dblclick="emit('dblclick', $event)"
+    @contextmenu="emit('contextmenu', $event)"
     :style="cardStyle"
     ref="cardRef"
   >
@@ -20,7 +20,7 @@
     <template v-else>
       <slot></slot>
     </template>
-    <div v-if="isAction" class="drp-drag-card-handles">
+    <div v-if="isAction && isResize" class="drp-drag-card-handles">
       <span v-for="a in posList" :class="['drp-drag-card-handle', a.value]" :key="a.value"
         ><i v-if="a.show" :data-action="a.value" @mousedown="onMouseDown(a.value, $event)"></i>
       </span>
@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
   import {computed, onBeforeUnmount, reactive, ref, watch} from 'vue';
-  import type {DragResizePlusProps, CardRect, GuideLineType} from './index';
+  import type {DragResizePlusProps, CardRect, GuideLineType, DragResizePlusEvent} from './index';
   import {useGuideLine} from './useGuideLine';
   const cardRef = ref<HTMLDivElement>();
   const props = withDefaults(defineProps<DragResizePlusProps>(), {
@@ -59,6 +59,8 @@
     guideDistance: 50,
     isGuideLine: true,
     isNear: true,
+    isDrag: true,
+    isResize: true,
     guideTextColor: 'white',
     guideBgColor: '#FF6347',
     guideLineColor: 'red',
@@ -74,39 +76,66 @@
     })
   });
   const isAction = computed(() => props.isEdit && props.isActive);
-  const emit = defineEmits([
-    'click',
-    'dblclick',
-    'contextmenu',
-    'update:rect',
-    'resizeStart',
-    'resizeMove',
-    'resizeEnd',
-    'dragStart',
-    'dragMove',
-    'dragEnd'
-  ]);
+  const emit = defineEmits<{
+    /**同步更新大小和位置 */
+    'update:rect': [rect: CardRect];
+    /**调整大小开始 */
+    resizeStart: [op: DragResizePlusEvent];
+    /**调整大小进行中 */
+    resizeMove: [op: DragResizePlusEvent];
+    /**调整大小结束 */
+    resizeEnd: [op: DragResizePlusEvent];
+    /**拖拽移动开始 */
+    dragStart: [op: DragResizePlusEvent];
+    /**拖拽移动进行中 */
+    dragMove: [op: DragResizePlusEvent];
+    /**拖拽移动结束 */
+    dragEnd: [op: DragResizePlusEvent];
+    /**点击 */
+    click: [ev: MouseEvent];
+    /**双击 */
+    dblclick: [ev: MouseEvent];
+    /**右击 */
+    contextmenu: [ev: MouseEvent];
+  }>();
   const guideStyle = computed(() => {
     return {
       background: props.guideBgColor,
       color: props.guideTextColor
     };
   });
-  const onAction = (type: 'click' | 'dblclick' | 'contextmenu', event: MouseEvent) => {
-    emit(type, event);
-  };
+
   const state = reactive({
     guideLineH: [] as GuideLineType[],
     guideLineV: [] as GuideLineType[],
-    isDrag: false
+    dragging: false,
+    resizing: false,
+    dragLeft: 0,
+    dragTop: 0,
+
+    resizeRect: {
+      left: 0,
+      top: 0,
+      width: 0,
+      height: 0
+    }
   });
   const cardStyle = computed(() => {
-    return {
-      left: props.rect.left + 'px',
-      top: props.rect.top + 'px',
-      width: props.rect.width + 'px',
-      height: props.rect.height + 'px'
-    };
+    if (state.resizing) {
+      return {
+        left: state.resizeRect.left + props.rect.left + 'px',
+        top: state.resizeRect.top + props.rect.top + 'px',
+        width: state.resizeRect.width + props.rect.width + 'px',
+        height: state.resizeRect.height + props.rect.height + 'px'
+      };
+    } else {
+      return {
+        left: props.rect.left + 'px',
+        top: props.rect.top + 'px',
+        width: props.rect.width + 'px',
+        height: props.rect.height + 'px'
+      };
+    }
   });
   const posList = computed(() =>
     props.isActive
@@ -130,7 +159,7 @@
     type: ''
   };
   const getGuideLines = (rect: CardRect, nearType?: 'resize' | 'drag') => {
-    if (!props.isGuideLine) return;
+    if (!props.isGuideLine || !props.parentWidth || !props.parentHeight) return;
     const {h, v} = useGuideLine(
       [props.id],
       rect,
@@ -168,8 +197,8 @@
         isMove = true;
       }
       if (isMove) {
-        if (nearType === 'drag') {
-          const newRect = {
+        if (props.isDrag && nearType === 'drag') {
+          const newRect: CardRect = {
             left: rect.left + left,
             top: rect.top + top,
             width: rect.width,
@@ -177,7 +206,7 @@
           };
           getGuideLines(newRect);
           emit('update:rect', newRect);
-        } else if (nearType === 'resize') {
+        } else if (props.isResize && nearType === 'resize') {
           const str = pos.type.split('-');
           if (str[0] === 'left') {
             rect.left += left;
@@ -228,11 +257,12 @@
     pos.x = ev.pageX;
     pos.y = ev.pageY;
     const target = cardRef.value!;
-    if (pos.type === 'drag') {
-      state.isDrag = true;
+    if (props.isDrag && pos.type === 'drag') {
+      state.dragging = true;
       const left = Math.round(pos.offsetx * props.unscale),
         top = Math.round(pos.offsety * props.unscale);
       target.style.transform = `translate(${left}px, ${top}px)`;
+
       const rect = props.rect;
       const newRect = {
         left: rect.left + left,
@@ -249,17 +279,26 @@
       });
 
       getGuideLines(newRect);
-    } else {
+    } else if (props.isResize) {
+      state.resizing = true;
       const rect = getRect();
 
       const left = Math.round(rect.left * props.unscale),
         top = Math.round(rect.top * props.unscale);
       const width = Math.round(rect.width * props.unscale),
         height = Math.round(rect.height * props.unscale);
+
+      state.resizeRect = {
+        left,
+        top,
+        width,
+        height
+      };
       target.style.width = width + props.rect.width + 'px';
       target.style.height = height + props.rect.height + 'px';
+      target.style.left = left + props.rect.left + 'px';
+      target.style.top = top + props.rect.top + 'px';
 
-      target.style.transform = `translate(${left}px, ${top}px)`;
       const newRect = {
         left: left + props.rect.left,
         top: top + props.rect.top,
@@ -286,8 +325,8 @@
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
     const target = cardRef.value!;
-    if (pos.type === 'drag') {
-      state.isDrag = false;
+    if (props.isDrag && pos.type === 'drag') {
+      state.dragging = false;
       target.style.transform = '';
       const left = Math.round(pos.offsetx * props.unscale),
         top = Math.round(pos.offsety * props.unscale);
@@ -302,12 +341,19 @@
       emit('dragEnd', {
         event: ev,
         type: 'dragEnd',
-        target: cardRef.value,
+        target: target,
         actionType: pos.type,
         rect: newRect
       });
       getGuideLines(newRect, 'drag');
-    } else {
+    } else if (props.isResize) {
+      state.resizing = false;
+      state.resizeRect = {
+        left: 0,
+        top: 0,
+        width: 0,
+        height: 0
+      };
       const rect = getRect();
       const left = Math.round(rect.left * props.unscale),
         top = Math.round(rect.top * props.unscale);
@@ -319,11 +365,11 @@
         width: width + props.rect.width,
         height: height + props.rect.height
       };
-      target.style.transform = '';
+
       emit('update:rect', newRect);
       emit('resizeEnd', {
         event: ev,
-        target: cardRef.value,
+        target: target,
         type: 'resizeEnd',
         actionType: pos.type,
         rect: newRect
@@ -340,19 +386,19 @@
     pos.offsety = 0;
     pos.type = type;
     getGuideLines(props.rect);
-    if (type === 'drag') {
-      state.isDrag = true;
+    if (props.isDrag && type === 'drag') {
+      state.dragging = true;
       emit('dragStart', {
         event: ev,
-        target: cardRef.value,
+        target: cardRef.value!,
         type: 'dragStart',
         actionType: pos.type,
         rect: props.rect
       });
-    } else {
+    } else if (props.isResize) {
       emit('resizeStart', {
         event: ev,
-        target: cardRef.value,
+        target: cardRef.value!,
         type: 'resizeStart',
         actionType: pos.type,
         rect: props.rect
@@ -363,7 +409,8 @@
     document.addEventListener('mouseup', onMouseUp);
   };
   const onUnAction = () => {
-    state.isDrag = false;
+    state.dragging = false;
+    state.resizing = false;
     state.guideLineH = [];
     state.guideLineV = [];
     document.onselectstart = null;

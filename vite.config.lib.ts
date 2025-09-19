@@ -11,6 +11,7 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    //@ts-ignore
     dts({
       tsconfigPath: './tsconfig.type.json'
     })
@@ -23,7 +24,7 @@ export default defineConfig({
 
       name: 'Vue3DragResizePlus',
       formats: ['es', 'umd'],
-      fileName: (format) => `index.${format === 'umd' ? 'umd.' : 'es'}js`
+      fileName: (format) => `index.${format === 'umd' ? 'umd.' : ''}js`
     },
     sourcemap: true,
     rollupOptions: {

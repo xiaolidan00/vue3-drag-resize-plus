@@ -73,8 +73,8 @@
 
 <script setup lang="ts">
 import { computed, reactive } from "vue";
-import { DragResizePlus } from "./components/index.ts";
-
+import { DragResizePlus } from "vue3-drag-resize-plus";
+import 'vue3-drag-resize-plus/index.css'
 const mockList: any[] = [];
 
 for (let i = 0; i < 5; i++) {
@@ -113,7 +113,7 @@ const state = reactive({
 });
 const unscale = computed(() => 1 / state.scale)
 const onAction = (op:any) => {
-console.log('🚀 ~ App.vue ~ onAction ~ op:', op)
+// console.log('🚀 ~ App.vue ~ onAction ~ op:', op)
 
 }
 const onClick = (id: string | number) => {
